@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supergas de los Altos - Gestión de Clientes</title>
+    <style>
+        :root {
+            --primary-red: #E30613;
+            --secondary-blue: #2A4F8C;
+            --light-gray-bg: #f4f4f4;
+            --text-color: #333;
+            --border-color: #ccc;
+            --input-bg: #fff;
+            --card-bg: #fff;
+            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--secondary-blue);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            flex-grow: 1;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem 0;
+            text-align: center;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--secondary-blue);
+            transition: color var(--transition-speed), border-bottom var(--transition-speed);
+        }
+
+        .tab-button.active {
+            color: var(--primary-red);
+            border-bottom: 3px solid var(--primary-red);
+        }
+
+        .tab-button:hover:not(.active) {
+            color: var(--primary-red);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            color: var(--secondary-blue);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            background-color: var(--input-bg);
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .button,
+        .export-import-section button {
+            background-color: var(--primary-red);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: background-color var(--transition-speed), transform var(--transition-speed);
+            display: inline-block;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .button:hover,
+        .export-import-section button:hover {
+            background-color: #c0050e; /* Darker red */
+            transform: translateY(-2px);
+        }
+
+        .button.blue {
+            background-color: var(--secondary-blue);
+        }
+
+        .button.blue:hover {
+            background-color: #224275; /* Darker blue */
+        }
+
+        .search-container {
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-container input {
+            flex-grow: 1;
+        }
+
+        #client-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .client-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.2rem;
+            box-shadow: var(--box-shadow);
+            transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .client-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .client-card h3 {
+            color: var(--primary-red);
+            margin-top: 0;
+            margin-bottom: 0.8rem;
+            font-size: 1.4rem;
+        }
+
+        .client-card p {
+            margin: 0.4rem 0;
+        }
+
+        .client-card strong {
+            color: var(--secondary-blue);
+        }
+
+        .card-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+            justify-content: flex-end;
+        }
+
+        .card-buttons .button {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            margin-top: 0; /* Override default button margin-top */
+        }
+
+        .export-import-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px dashed var(--border-color);
+            text-align: center;
+        }
+
+        .export-import-section h2 {
+            color: var(--secondary-blue);
+            margin-bottom: 1rem;
+        }
+
+        .export-import-section input[type="file"] {
+            margin-bottom: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            background-color: var(--secondary-blue);
+            color: white;
+            font-size: 0.9rem;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                margin: 1rem;
+                padding: 0.8rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+                border-bottom: none;
+            }
+
+            .tab-button {
+                border-bottom: 1px solid var(--border-color);
+                margin-bottom: 5px;
+            }
+
+            .tab-button.active {
+                border-bottom: 3px solid var(--primary-red);
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .client-card {
+                padding: 1rem;
+            }
+
+            .card-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .card-buttons .button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .button,
+            .export-import-section button {
+                font-size: 1rem;
+                padding: 10px 15px;
+            }
+
+            input[type="text"],
+            input[type="email"],
+            textarea {
+                padding: 8px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+            }
+            header, .tabs, .search-container, .button, .export-import-section, footer {
+                display: none;
+            }
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            #client-results {
+                grid-template-columns: 1fr; /* Single column for printing */
+                gap: 1rem;
+            }
+            .client-card {
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+                box-shadow: none;
+                margin-bottom: 1rem;
+            }
+            .card-buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Supergas de los Altos</h1>
+        <p>Gestión de Clientes</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="add-client">Agregar Cliente</button>
+            <button class="tab-button" data-tab="search-client">Buscar Cliente</button>
+        </div>
+
+        <div id="add-client" class="tab-content active">
+            <h2>Agregar/Editar Cliente</h2>
+            <form id="client-form">
+                <input type="hidden" id="client-id" value="">
+                <div class="form-group">
+                    <label for="nombres">Nombres (separados por comas):</label>
+                    <input type="text" id="nombres" placeholder="Ej: Juan Pérez, Ana García" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefonos">Teléfonos (separados por comas):</label>
+                    <input type="text" id="telefonos" placeholder="Ej: 3312345678, 3398765432">
+                </div>
+                <div class="form-group">
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" placeholder="Ej: Calle Principal #123, Colonia Centro">
+                </div>
+                <div class="form-group">
+                    <label for="correo">Correo electrónico:</label>
+                    <input type="email" id="correo" placeholder="Ej: correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="notas">Notas:</label>
+                    <textarea id="notas" placeholder="Información adicional sobre el cliente..."></textarea>
+                </div>
+                <button type="submit" class="button" id="save-client-button">Guardar Cliente</button>
+            </form>
+        </div>
+
+        <div id="search-client" class="tab-content">
+            <h2>Buscar Clientes</h2>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Buscar por nombre, teléfono, dirección o correo...">
+                <button class="button blue" id="search-button">Buscar</button>
+            </div>
+            <div id="client-results">
+                <p id="no-results-message" style="display: none; text-align: center; color: var(--secondary-blue);">No se encontraron clientes.</p>
+            </div>
+
+            <div class="export-import-section">
+                <h2>Exportar/Importar Clientes</h2>
+                <button class="button blue" id="export-csv-button">Exportar a CSV</button>
+                <br>
+                <input type="file" id="import-csv-file" accept=".csv" style="margin-top: 1rem;">
+                <button class="button blue" id="import-csv-button">Importar desde CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2019 Supergas de los Altos. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const clientForm = document.getElementById('client-form');
+            const clientIdInput = document.getElementById('client-id');
+            const nombresInput = document.getElementById('nombres');
+            const telefonosInput = document.getElementById('telefonos');
+            const direccionInput = document.getElementById('direccion');
+            const correoInput = document.getElementById('correo');
+            const notasInput = document.getElementById('notas');
+            const saveClientButton = document.getElementById('save-client-button');
+
+            const searchInput = document.getElementById('search-input');
+            const searchButton = document.getElementById('search-button');
+            const clientResultsDiv = document.getElementById('client-results');
+            const noResultsMessage = document.getElementById('no-results-message');
+
+            const exportCsvButton = document.getElementById('export-csv-button');
+            const importCsvFile = document.getElementById('import-csv-file');
+            const importCsvButton = document.getElementById('import-csv-button');
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            // --- Tab Switching Logic ---
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    button.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+
+                    // If switching to search tab, perform an initial search to show all clients
+                    if (targetTab === 'search-client') {
+                        searchClients();
+                    }
+                });
+            });
+
+            // --- Helper Functions ---
+
+            /**
+             * Retrieves all clients from localStorage.
+             * @returns {Array} An array of client objects.
+             */
+            function getClients() {
+                const clients = localStorage.getItem('supergasClientes');
+                return clients ? JSON.parse(clients) : [];
+            }
+
+            /**
+             * Saves the given array of clients to localStorage.
+             * @param {Array} clients - The array of client objects to save.
+             */
+            function saveClients(clients) {
+                localStorage.setItem('supergasClientes', JSON.stringify(clients));
+            }
+
+            /**
+             * Clears the client form fields and resets the save button text.
+             */
+            function clearForm() {
+                clientIdInput.value = '';
+                nombresInput.value = '';
+                telefonosInput.value = '';
+                direccionInput.value = '';
+                correoInput.value = '';
+                notasInput.value = '';
+                saveClientButton.textContent = 'Guardar Cliente';
+            }
+
+            /**
+             * Generates a simple unique ID.
+             * @returns {string} A unique ID string.
+             */
+            function generateUniqueId() {
+                return Date.now().toString(36) + Math.random().toString(36).substring(2);
+            }
+
+            // --- Client Management (Add/Edit) ---
+
+            clientForm.addEventListener('submit', (e) => {
+                e.preventDefault(); // Prevent default form submission
+
+                const id = clientIdInput.value;
+                const nombres = nombresInput.value.trim();
+                const telefonos = telefonosInput.value.trim();
+                const direccion = direccionInput.value.trim();
+                const correo = correoInput.value.trim();
+                const notas = notasInput.value.trim();
+
+                if (!nombres) {
+                    alert('El nombre es un campo requerido.');
+                    return;
+                }
+
+                let clients = getClients();
+
+                if (id) {
+                    // Editing an existing client
+                    const clientIndex = clients.findIndex(c => c.id === id);
+                    if (clientIndex > -1) {
+                        clients[clientIndex] = { id, nombres, telefonos, direccion, correo, notas };
+                        alert('Cliente actualizado exitosamente!');
+                    } else {
+                        alert('Error: Cliente no encontrado para editar.');
+                    }
+                } else {
+                    // Adding a new client
+                    const newClient = {
+                        id: generateUniqueId(),
+                        nombres,
+                        telefonos,
+                        direccion,
+                        correo,
+                        notas
+                    };
+                    clients.push(newClient);
+                    alert('Cliente guardado exitosamente!');
+                }
+
+                saveClients(clients);
+                clearForm();
+                // Switch to search tab and refresh results if a client was added/edited
+                document.querySelector('.tab-button[data-tab="search-client"]').click();
+            });
+
+            // --- Search and Display Clients ---
+
+            /**
+             * Creates an HTML card element for a given client.
+             * @param {Object} client - The client object.
+             * @returns {HTMLElement} The client card div element.
+             */
+            function createClientCard(client) {
+                const card = document.createElement('div');
+                card.classList.add('client-card');
+                card.setAttribute('data-id', client.id);
+
+                card.innerHTML = `
+                    <h3>${client.nombres}</h3>
+                    <p><strong>Teléfonos:</strong> ${client.telefonos || 'N/A'}</p>
+                    <p><strong>Dirección:</strong> ${client.direccion || 'N/A'}</p>
+                    <p><strong>Correo:</strong> ${client.correo || 'N/A'}</p>
+                    <p><strong>Notas:</strong> ${client.notas || 'N/A'}</p>
+                    <div class="card-buttons">
+                        <button class="button blue edit-button" data-id="${client.id}">Editar</button>
+                        <button class="button print-button" data-id="${client.id}">Imprimir</button>
+                    </div>
+                `;
+
+                // Attach event listeners to buttons within the card
+                card.querySelector('.edit-button').addEventListener('click', () => editClient(client.id));
+                card.querySelector('.print-button').addEventListener('click', () => printClient(client.id));
+
+                return card;
+            }
+
+            /**
+             * Filters clients based on the search input and displays them.
+             */
+            function searchClients() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const clients = getClients();
+                clientResultsDiv.innerHTML = ''; // Clear previous results
+
+                const filteredClients = clients.filter(client =>
+                    client.nombres.toLowerCase().includes(searchTerm) ||
+                    client.telefonos.toLowerCase().includes(searchTerm) ||
+                    client.direccion.toLowerCase().includes(searchTerm) ||
+                    client.correo.toLowerCase().includes(searchTerm)
+                );
+
+                if (filteredClients.length > 0) {
+                    noResultsMessage.style.display = 'none';
+                    filteredClients.forEach(client => {
+                        clientResultsDiv.appendChild(createClientCard(client));
+                    });
+                } else {
+                    noResultsMessage.style.display = 'block';
+                }
+            }
+
+            searchButton.addEventListener('click', searchClients);
+            searchInput.addEventListener('input', searchClients); // Real-time search
+
+            // Initial display of clients when the search tab is active on load
+            // (or when it's switched to the first time)
+            searchClients();
+
+            // --- Edit Client Functionality ---
+
+            /**
+             * Populates the form with a client's data for editing.
+             * @param {string} id - The ID of the client to edit.
+             */
+            function editClient(id) {
+                const clients = getClients();
+                const clientToEdit = clients.find(client => client.id === id);
+
+                if (clientToEdit) {
+                    // Switch to "Agregar Cliente" tab
+                    document.querySelector('.tab-button[data-tab="add-client"]').click();
+
+                    clientIdInput.value = clientToEdit.id;
+                    nombresInput.value = clientToEdit.nombres;
+                    telefonosInput.value = clientToEdit.telefonos;
+                    direccionInput.value = clientToEdit.direccion;
+                    correoInput.value = clientToEdit.correo;
+                    notasInput.value = clientToEdit.notas;
+                    saveClientButton.textContent = 'Actualizar Cliente';
+                } else {
+                    alert('Cliente no encontrado.');
+                }
+            }
+
+            // --- Print Client Information ---
+
+            /**
+             * Prints the information of a specific client.
+             * @param {string} id - The ID of the client to print.
+             */
+            function printClient(id) {
+                const clients = getClients();
+                const clientToPrint = clients.find(client => client.id === id);
+
+                if (clientToPrint) {
+                    let printContent = `
+                        <h2>Información del Cliente: ${clientToPrint.nombres}</h2>
+                        <p><strong>Nombres:</strong> ${clientToPrint.nombres}</p>
+                        <p><strong>Teléfonos:</strong> ${clientToPrint.telefonos || 'N/A'}</p>
+                        <p><strong>Dirección:</strong> ${clientToPrint.direccion || 'N/A'}</p>
+                        <p><strong>Correo electrónico:</strong> ${clientToPrint.correo || 'N/A'}</p>
+                        <p><strong>Notas:</strong> ${clientToPrint.notas || 'N/A'}</p>
+                        <p>Supergas de los Altos</p>
+                        <p>Fecha de impresión: ${new Date().toLocaleDateString()}</p>
+                    `;
+
+                    // Create a new window for printing
+                    const printWindow = window.open('', '_blank', 'height=600,width=800');
+                    printWindow.document.write('<html><head><title>Imprimir Cliente</title>');
+                    // Inherit some basic styles for better print appearance
+                    printWindow.document.write('<style>');
+                    printWindow.document.write(`
+                        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; color: #333; }
+                        h2 { color: var(--primary-red); margin-bottom: 15px; }
+                        p { margin: 8px 0; }
+                        strong { color: var(--secondary-blue); }
+                        @media print {
+                            body { margin: 0; padding: 10px; }
+                        }
+                    `);
+                    printWindow.document.write('</style></head><body>');
+                    printWindow.document.write(printContent);
+                    printWindow.document.write('</body></html>');
+                    printWindow.document.close();
+                    printWindow.print();
+                } else {
+                    alert('Cliente no encontrado para imprimir.');
+                }
+            }
+
+            // --- Export to CSV ---
+
+            exportCsvButton.addEventListener('click', () => {
+                const clients = getClients();
+                if (clients.length === 0) {
+                    alert('No hay clientes para exportar.');
+                    return;
+                }
+
+                // Define CSV headers
+                const headers = ['id', 'nombres', 'telefonos', 'direccion', 'correo', 'notas'];
+                let csvContent = headers.join(',') + '\n';
+
+                clients.forEach(client => {
+                    const row = headers.map(header => {
+                        // Ensure commas within data are properly quoted
+                        let data = client[header] || '';
+                        data = data.replace(/"/g, '""'); // Escape double quotes
+                        if (data.includes(',') || data.includes('\n') || data.includes('"')) {
+                            data = `"${data}"`; // Enclose in double quotes if it contains special characters
+                        }
+                        return data;
+                    }).join(',');
+                    csvContent += row + '\n';
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                if (link.download !== undefined) { // Feature detection for download attribute
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', 'clientes_supergas_altos.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    alert('Tu navegador no soporta la descarga directa de archivos. Por favor, copia el contenido manualmente.');
+                    console.log(csvContent); // Log to console for manual copy
+                }
+            });
+
+            // --- Import from CSV ---
+
+            importCsvButton.addEventListener('click', () => {
+                if (importCsvFile.files.length === 0) {
+                    alert('Por favor, selecciona un archivo CSV para importar.');
+                    return;
+                }
+
+                const file = importCsvFile.files[0];
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const csvContent = e.target.result;
+                    processCsvContent(csvContent);
+                };
+
+                reader.onerror = () => {
+                    alert('Error al leer el archivo.');
+                };
+
+                reader.readAsText(file);
+            });
+
+            /**
+             * Processes the CSV content to add new clients.
+             * @param {string} csvString - The CSV content as a string.
+             */
+            function processCsvContent(csvString) {
+                const lines = csvString.split('\n').filter(line => line.trim() !== '');
+                if (lines.length === 0) {
+                    alert('El archivo CSV está vacío.');
+                    return;
+                }
+
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const expectedHeaders = ['id', 'nombres', 'telefonos', 'direccion', 'correo', 'notas'];
+
+                // Basic header validation
+                const missingHeaders = expectedHeaders.filter(header => !headers.includes(header));
+                if (missingHeaders.length > 0) {
+                    alert(`El archivo CSV no tiene el formato esperado. Faltan las siguientes columnas: ${missingHeaders.join(', ')}`);
+                    return;
+                }
+
+                let clients = getClients();
+                let importedCount = 0;
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCsvLine(lines[i]); // Handle quoted fields
+                    if (values.length !== headers.length) {
+                        console.warn(`Saltando línea ${i + 1} debido a un número incorrecto de columnas: "${lines[i]}"`);
+                        continue;
+                    }
+
+                    const newClient = {};
+                    headers.forEach((header, index) => {
+                        newClient[header] = values[index];
+                    });
+
+                    // If an ID is provided, check for existing client, otherwise generate a new ID
+                    let existingClientIndex = -1;
+                    if (newClient.id) {
+                        existingClientIndex = clients.findIndex(c => c.id === newClient.id);
+                    } else {
+                        newClient.id = generateUniqueId();
+                    }
+
+
+                    if (existingClientIndex !== -1) {
+                        // Optionally update existing client or skip
+                        // For simplicity, we'll overwrite if ID matches, or add if it's new
+                        clients[existingClientIndex] = newClient; // Overwrite
+                        console.log(`Cliente con ID ${newClient.id} actualizado.`);
+                    } else {
+                        clients.push(newClient);
+                        importedCount++;
+                    }
+                }
+
+                saveClients(clients);
+                alert(`Importación completada. Se ${importedCount > 0 ? 'agregaron' : 'actualizaron/fusionaron'} ${importedCount} clientes nuevos (o se actualizaron existentes).`);
+                importCsvFile.value = ''; // Clear file input
+                document.querySelector('.tab-button[data-tab="search-client"]').click(); // Refresh search results
+            }
+
+            /**
+             * Parses a single CSV line, handling quoted fields.
+             * @param {string} line - The CSV line string.
+             * @returns {Array<string>} An array of parsed values.
+             */
+            function parseCsvLine(line) {
+                const values = [];
+                let inQuote = false;
+                let currentField = '';
+
+                for (let i = 0; i < line.length; i++) {
+                    const char = line[i];
+                    if (char === '"') {
+                        if (inQuote && i + 1 < line.length && line[i+1] === '"') {
+                            // Escaped double quote "" -> "
+                            currentField += '"';
+                            i++; // Skip the next quote
+                        } else {
+                            inQuote = !inQuote;
+                        }
+                    } else if (char === ',' && !inQuote) {
+                        values.push(currentField.trim());
+                        currentField = '';
+                    } else {
+                        currentField += char;
+                    }
+                }
+                values.push(currentField.trim()); // Add the last field
+
+                return values;
+            }
+        });
+    </script>
+</body>
+</html>
