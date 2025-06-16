@@ -37,14 +37,22 @@
             box-shadow: var(--box-shadow);
         }
 
-        header img {
-            display: block;
-            margin: 0 auto 10px;
-            height: 50px;
-        }
-        header div {
-            text-align: center;
-        }
+        header .logo-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+header .logo-title img {
+    height: 48px;
+}
+
+header .logo-title h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+        
         header h1 {
             margin: 0;
             font-size: 2.5rem;
@@ -347,11 +355,11 @@
 </head>
 <body>
     <header>
-    <img src="https://raw.githubusercontent.com/tepokato/GC-GDLA/refs/heads/main/file_00000000b3e061f7b4c6c4bf2a216b66(1).png" alt="Supergas Logo" style="height: 60px; vertical-align: middle; margin-right: 1rem;">
-    <div style="display: inline-block; vertical-align: middle;">
-        <h1 style="margin: 0;">Supergas de los Altos</h1>
-        <p style="margin: 0;">Gestión de Clientes</p>
+    <div class="logo-title">
+        <img src="https://raw.githubusercontent.com/tepokato/GC-GDLA/refs/heads/main/file_00000000b3e061f7b4c6c4bf2a216b66(1).png" alt="Logo">
+        <h1>Supergas de los Altos</h1>
     </div>
+    <p>Gestión de Clientes</p>
 </header>
 
     <div class="container">
